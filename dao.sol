@@ -153,6 +153,10 @@ contract Dao {
     function getProposalCount() external view returns (uint256) {
         return proposals.length;
     }
+    
+     function getStakeData(address _address) external view returns (uint256) {
+        return starterContract.getStakeData(_address);
+    }
 
     function hasVoted(Proposal storage proposal, address voter) internal view returns (bool) {
         for (uint256 i = 0; i < proposal.voters.length; i++) {
