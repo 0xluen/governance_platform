@@ -42,9 +42,9 @@ contract Dao {
         uint256 endTime;
         uint256 votingPeriodInDays;
         bool closed;
-        uint256 yesVotes;
-        uint256 noVotes;
-        uint256 undecidedVotes;
+        uint256 option1Votes;
+        uint256 option2Votes;
+        uint256 option3Votes;
         address[] voters;
     }
 
@@ -70,7 +70,7 @@ contract Dao {
         require(_votingPeriodInDays > 0, "Voting period must be greater than zero");
 
         uint256 startTime = block.timestamp;
-        uint256 endTime = startTime + (_votingPeriodInDays * 1 minutes);
+        uint256 endTime = startTime + (_votingPeriodInDays * 1 days);
 
         Proposal memory newProposal = Proposal({
             owner: msg.sender,
@@ -80,15 +80,20 @@ contract Dao {
             endTime: endTime,
             votingPeriodInDays: _votingPeriodInDays,
             closed: false,
-            yesVotes: 0,
-            noVotes: 0,
-            undecidedVotes: 0,
+            option1Votes: 0,
+            option2Votes: 0,
+            option3Votes: 0,
             voters: new address[](0) 
         });
 
         proposals.push(newProposal);
     }
-
+    
+    function transferOwnership(address newOwner) external onlyOwner {
+        require(newOwner != address(0), "Invalid new owner address");
+        owner = newOwner;
+    }
+    
     function vote(uint256 _proposalIndex, uint256 _vote) external noReentry {
         require(_proposalIndex < proposals.length, "Invalid proposal index");
         require(_vote <= 2, "Invalid vote"); 
@@ -100,11 +105,11 @@ contract Dao {
         require(!hasVoted(proposal, msg.sender), "Already voted");
     
         if (_vote == 1) {
-            proposal.yesVotes += 1;
+            proposal.option1Votes += 1;
         } else if (_vote == 0) {
-            proposal.noVotes += 1;
+            proposal.option2Votes += 1;
         } else if (_vote == 2) {
-            proposal.undecidedVotes += 1;
+            proposal.option3Votes += 1;
         }
 
         proposal.voters.push(msg.sender); 
@@ -120,17 +125,19 @@ contract Dao {
         proposal.closed = true;
     }
 
+
+
     function getProposal(uint256 _proposalIndex) external view returns (
-        address owner,
+        address owner_,
         string memory title,
         string memory description,
         uint256 startTime,
         uint256 endTime,
         uint256 votingPeriodInDays,
         bool closed,
-        uint256 yesVotes,
-        uint256 noVotes,
-        uint256 undecidedVotes,
+        uint256 option1Votes,
+        uint256 option2Votes,
+        uint256 option3Votes,
         address[] memory voters
     ) {
         require(_proposalIndex < proposals.length, "Invalid proposal index");
@@ -143,9 +150,9 @@ contract Dao {
             proposal.endTime,
             proposal.votingPeriodInDays,
             proposal.closed,
-            proposal.yesVotes,
-            proposal.noVotes,
-            proposal.undecidedVotes,
+            proposal.option1Votes,
+            proposal.option2Votes,
+            proposal.option3Votes,
             proposal.voters
         );
     }
@@ -157,7 +164,11 @@ contract Dao {
      function getStakeData(address _address) external view returns (uint256) {
         return starterContract.getStakeData(_address);
     }
-
+    
+    function getAllProposals() external view returns (Proposal[] memory) {
+        return proposals;
+    }
+    
     function hasVoted(Proposal storage proposal, address voter) internal view returns (bool) {
         for (uint256 i = 0; i < proposal.voters.length; i++) {
             if (proposal.voters[i] == voter) {
