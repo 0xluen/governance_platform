@@ -125,14 +125,19 @@ contract Dao {
     
         if (_vote == 1) {
             proposal.option1Votes += 1;
+
         } else if (_vote == 2) {
             proposal.option2Votes += 1;
+
         } else if (_vote == 3) {
             proposal.option3Votes += 1;
+
         }else if (_vote == 4) {
             proposal.option4Votes += 1;
+
         }else if (_vote == 5) {
             proposal.option5Votes += 1;
+            
         }
 
         proposal.voters.push(msg.sender); 
@@ -148,37 +153,19 @@ contract Dao {
         proposal.closed = true;
     }
 
-
-
     function getProposal(uint256 _proposalIndex) external view returns (
-        address owner_,
-        string memory title,
-        string memory description,
-        uint256 startTime,
-        uint256 endTime,
-        uint256 votingPeriodInDays,
-        bool closed,
-        uint256 option1Votes,
-        uint256 option2Votes,
-        uint256 option3Votes,
-        address[] memory voters
-    ) {
-        require(_proposalIndex < proposals.length, "Invalid proposal index");
-        Proposal storage proposal = proposals[_proposalIndex];
-        return (
-            proposal.owner,
-            proposal.title,
-            proposal.description,
-            proposal.startTime,
-            proposal.endTime,
-            proposal.votingPeriodInDays,
-            proposal.closed,
-            proposal.option1Votes,
-            proposal.option2Votes,
-            proposal.option3Votes,
-            proposal.voters
-        );
+            Proposal memory
+         ) {
+             require(_proposalIndex < proposals.length, "Invalid proposal index");
+             
+             Proposal storage proposal = proposals[_proposalIndex];
+             
+             return (
+                 proposal
+             );
     }
+
+
 
     function getProposalCount() external view returns (uint256) {
         return proposals.length;
